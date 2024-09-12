@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">buscaminas</string>
+
+    <string name="title_activity">MINE SWEEPER</string>
+
+    <string name="sub_text">CHOOSE LEVEL GAME</string>
+
+    <string name="easy_mode">LOW</string>
+
+    <string name="medium_mode">MEDIUM</string>
+
+    <string name="hard_mode">HARD</string>
+</resources>
