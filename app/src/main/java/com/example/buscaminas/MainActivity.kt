@@ -2,6 +2,7 @@ package com.example.buscaminas
 
 import android.os.Bundle
 import android.widget.Button
+import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,9 +17,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.buscaminas.ui.theme.BuscaminasTheme
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContentView(R.layout.main_activity)
 
         val easyButton = findViewById<Button>(R.id.btnEasy)
@@ -26,20 +27,26 @@ class MainActivity : ComponentActivity() {
         val hardButton = findViewById<Button>(R.id.btnHard)
 
         easyButton.setOnClickListener {
-            Toast.makeText(this, "Modo Fácil seleccionado", Toast.LENGTH_SHORT).show()
+            loadLayout(R.id.frBuscaminas, R.layout.mode_low)
         }
         mediumButton.setOnClickListener {
-            Toast.makeText(this, "Modo Medio seleccionado", Toast.LENGTH_SHORT).show()
+            loadLayout(R.id.frBuscaminas, R.layout.medium_mode)
 
         }
         hardButton.setOnClickListener {
-            Toast.makeText(this, "Modo Dificil seleccionado", Toast.LENGTH_SHORT).show()
 
         }
-
-
     }
+
+    private fun loadLayout(frameLayoutId: Int, layoutId: Int) {
+        val frameLayout = findViewById<FrameLayout>(frameLayoutId)
+        frameLayout.removeAllViews()
+        val layout = layoutInflater.inflate(layoutId, frameLayout, false)
+        frameLayout.addView(layout)
+    }
+
 }
+
 
 
 
