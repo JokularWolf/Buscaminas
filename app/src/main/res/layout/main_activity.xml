@@ -9,7 +9,7 @@
         android:id="@+id/title.txt"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="70px"
+        android:layout_marginTop="30dp"
         android:text="@string/title_activity"
         android:textAlignment="center"
         android:textSize="20sp"
@@ -19,7 +19,7 @@
         android:id="@+id/textView2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="70px"
+        android:layout_marginTop="30dp"
         android:text="@string/sub_text"
         android:textAlignment="center"
         android:textSize="20sp"
@@ -55,5 +55,12 @@
             android:text="@string/hard_mode"
             tools:text="@string/hard_mode" />
     </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/frBuscaminas"
+        android:layout_width="match_parent"
+        android:layout_height="393dp">
+
+    </FrameLayout>
 
 </LinearLayout>
