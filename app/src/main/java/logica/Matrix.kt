@@ -4,73 +4,76 @@ import android.widget.GridLayout
 import android.widget.Button
 import kotlin.random.Random
 
-class Matrix(private val gridLayout: GridLayout, val rows: Int, val cols: Int) {
-    private val matrix: Array<Array<Int?>> = Array(rows) { arrayOfNulls(cols) }
+class Matrix(val rows: Int, val cols: Int, val numMines: Int) {
 
-    // Inicializa la matriz con valores específicos si es necesario
+    // Matriz para representar el estado del tablero
+    private val board: Array<Array<Cell>>
+
     init {
-        for (i in 0 until rows) {
-            for (j in 0 until cols) {
-                matrix[i][j] = 0 // Puedes cambiar este valor a lo que necesites
-            }
-        }
-        initializeGridLayout()
+        // Inicializa el tablero con celdas vacías
+        board = Array(rows) { row -> Array(cols) { col -> Cell() } }
+        placeMines()
     }
 
-    // Inicializa los botones en el GridLayout basado en la matriz
-    private fun initializeGridLayout() {
-        gridLayout.removeAllViews() // Limpia el GridLayout antes de agregar botones
-        gridLayout.rowCount = rows
-        gridLayout.columnCount = cols
+    // Clase para representar cada celda
+    class Cell {
+        var isMine: Boolean = false
+        var isRevealed: Boolean = false
+        var adjacentMines: Int = 0
+    }
 
+    // Coloca minas en posiciones aleatorias
+    private fun placeMines() {
+        val minePositions = mutableSetOf<Pair<Int, Int>>()
+        while (minePositions.size < numMines) {
+            val row = kotlin.random.Random.nextInt(rows)
+            val col = kotlin.random.Random.nextInt(cols)
+            minePositions.add(row to col)
+        }
+
+        minePositions.forEach { (row, col) ->
+            board[row][col].isMine = true
+        }
+
+        // Calcula el número de minas adyacentes para cada celda
+        calculateAdjacentMines()
+    }
+
+    // Calcula el número de minas adyacentes para cada celda
+    private fun calculateAdjacentMines() {
+        val directions = listOf(-1, 0, 1)
         for (row in 0 until rows) {
             for (col in 0 until cols) {
-                val button = Button(gridLayout.context).apply {
-                    text = "${row + 1},${col + 1}"
-                    layoutParams = GridLayout.LayoutParams().apply {
-                        rowSpec = GridLayout.spec(row, 1f)
-                        columnSpec = GridLayout.spec(col, 1f)
-                        width = 0
-                        height = 0
+                if (!board[row][col].isMine) {
+                    var adjacentMines = 0
+                    for (dx in directions) {
+                        for (dy in directions) {
+                            if (dx != 0 || dy != 0) {
+                                val newRow = row + dx
+                                val newCol = col + dy
+                                if (newRow in 0 until rows && newCol in 0 until cols && board[newRow][newCol].isMine) {
+                                    adjacentMines++
+                                }
+                            }
+                        }
                     }
+                    board[row][col].adjacentMines = adjacentMines
                 }
-                gridLayout.addView(button)
             }
         }
     }
 
-    // Accede a un elemento de la matriz
-    fun get(row: Int, col: Int): Int? {
-        return if (row in 0 until rows && col in 0 until cols) matrix[row][col] else null
+    // Función para revelar una celda
+    fun revealCell(row: Int, col: Int): Boolean {
+        val cell = board[row][col]
+        if (cell.isRevealed) return false
+        cell.isRevealed = true
+        return cell.isMine
     }
 
-    // Modifica un elemento de la matriz
-    fun set(row: Int, col: Int, value: Int) {
-        if (row in 0 until rows && col in 0 until cols) matrix[row][col] = value
+    // Función para obtener el número de minas adyacentes de una celda
+    fun getAdjacentMines(row: Int, col: Int): Int {
+        return board[row][col].adjacentMines
     }
-
-    // Genera minas en la matriz
-    fun placeMines(numberOfMines: Int) {
-        val positions = mutableSetOf<Pair<Int, Int>>()
-        while (positions.size < numberOfMines) {
-            val row = Random.nextInt(rows)
-            val col = Random.nextInt(cols)
-            positions.add(row to col)
-        }
-        positions.forEach { (row, col) ->
-            set(row, col, -1) // Usamos -1 para representar una mina
-        }
-    }
-
-    // Muestra la matriz para depuración
-    fun printMatrix() {
-        for (i in 0 until rows) {
-            for (j in 0 until cols) {
-                val value = matrix[i][j]
-                print("${value ?: " "} ") // Imprime un espacio para elementos nulos
-            }
-            println()
-        }
-    }
-
 }
+
