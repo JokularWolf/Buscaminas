@@ -1,10 +1,8 @@
 package com.example.buscaminas
 
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import android.widget.FrameLayout
-import android.widget.GridLayout
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -17,11 +15,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.buscaminas.ui.theme.BuscaminasTheme
-import logica.Matrix
+import kotlin.random.Random
+import android.widget.GridLayout
 
 class MainActivity : ComponentActivity() {
-
-    private lateinit var matrix: Matrix
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,60 +29,90 @@ class MainActivity : ComponentActivity() {
         val hardButton = findViewById<Button>(R.id.btnHard)
 
         easyButton.setOnClickListener {
-            loadLayout(R.layout.mode_low, 4, 4)
+            loadLayout(R.id.frBuscaminas, R.layout.buscaminas_layout, 8, 8, 10)
         }
         mediumButton.setOnClickListener {
-            loadLayout(R.layout.medium_mode, 8, 8)
+            loadLayout(R.id.frBuscaminas, R.layout.buscaminas_layout, 16, 16, 40)
         }
         hardButton.setOnClickListener {
-            // Implementar lógica para modo difícil si es necesario
+            loadLayout(R.id.frBuscaminas, R.layout.buscaminas_layout, 24, 24, 99)
         }
     }
 
-    private fun loadLayout(layoutId: Int, rows: Int, cols: Int) {
-        val frameLayout = findViewById<FrameLayout>(R.id.frBuscaminas)
+    private fun loadLayout(frameLayoutId: Int, layoutId: Int, rows: Int, cols: Int, numMines: Int) {
+        val frameLayout = findViewById<FrameLayout>(frameLayoutId)
         frameLayout.removeAllViews()
         val layout = layoutInflater.inflate(layoutId, frameLayout, false)
         frameLayout.addView(layout)
 
-        val gridLayout = layout.findViewById<GridLayout>(R.id.low_mode_grd)
-        matrix = Matrix(gridLayout, rows, cols)
-
-        // Coloca las minas en la matriz lógica
-        val numberOfMines = (rows * cols * 0.3).toInt()
-        matrix.placeMines(numberOfMines)
-
-        // Crea una matriz de botones
-        val buttons = Array(rows) { arrayOfNulls<Button>(cols) }
-        for (i in 0 until rows) {
-            for (j in 0 until cols) {
-                val button = gridLayout.getChildAt(i * cols + j) as Button
-                buttons[i][j] = button
-            }
-        }
-        // Llama a printMatrix para mostrar la matriz en la consola
-        matrix.printMatrix()
-
-        // Actualiza la UI con las minas
-        updateUIWithMines(buttons)
+        setupGrid(rows, cols, numMines)
     }
 
-    private fun updateUIWithMines(buttons: Array<Array<Button?>>) {
-        for (row in 0 until matrix.rows) {
-            for (col in 0 until matrix.cols) {
-                val button = buttons[row][col]
-                if (matrix.get(row, col) == -1) {
-                    button?.text = "M"  // Mina
+    private fun setupGrid(rows: Int, cols: Int, numMines: Int) {
+        val gridLayout = findViewById<GridLayout>(R.id.gridLayout)
+
+        // Remove any existing buttons
+        gridLayout.removeAllViews()
+
+        // Configure GridLayout
+        gridLayout.rowCount = rows
+        gridLayout.columnCount = cols
+
+        // Create buttons
+        for (row in 0 until rows) {
+            for (col in 0 until cols) {
+                val button = Button(this).apply {
+                    layoutParams = GridLayout.LayoutParams().apply {
+                        width = 0
+                        height = 0
+                        columnSpec = GridLayout.spec(col, 1f)
+                        rowSpec = GridLayout.spec(row, 1f)
+                    }
+                    text = ""
+                    setOnClickListener { handleButtonClick(row, col) }
+                }
+
+                gridLayout.addView(button)
+            }
+        }
+
+        // Place mines randomly
+        placeMines(rows, cols, numMines)
+    }
+
+    private fun placeMines(rows: Int, cols: Int, numMines: Int) {
+        val gridLayout = findViewById<GridLayout>(R.id.gridLayout)
+        val buttons = Array(rows) { row -> Array(cols) { col ->
+            gridLayout.getChildAt(row * cols + col) as Button
+        }}
+
+        val minePositions = mutableSetOf<Pair<Int, Int>>()
+        while (minePositions.size < numMines) {
+            val row = Random.nextInt(rows)
+            val col = Random.nextInt(cols)
+            minePositions.add(row to col)
+        }
+
+        buttons.forEachIndexed { row, buttonRow ->
+            buttonRow.forEachIndexed { col, button ->
+                if (row to col in minePositions) {
+                    button.tag = "MINE"
                 } else {
-                    button?.text = ""   // Espacio vacío o el número de minas cercanas
+                    button.tag = "SAFE"
                 }
             }
         }
     }
 
+    private fun handleButtonClick(row: Int, col: Int) {
+        val gridLayout = findViewById<GridLayout>(R.id.gridLayout)
+        val button = gridLayout.getChildAt(row * 24 + col) as Button // Assumes 24x24; will adjust based on actual size
+        if (button.tag == "MINE") {
+            Toast.makeText(this, "Game Over! You hit a mine!", Toast.LENGTH_SHORT).show()
+            // Handle game over logic here, such as disabling further clicks
+        } else {
+            button.text = "Safe"
+            // Handle safe cell logic, e.g., uncovering adjacent cells
+        }
+    }
 }
-
-
-
-
-
