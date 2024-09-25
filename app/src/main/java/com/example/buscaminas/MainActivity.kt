@@ -24,10 +24,10 @@ class MainActivity : ComponentActivity() {
             loadLayout(R.id.frBuscaminas, R.layout.buscaminas_layout, 8, 8, 10)
         }
         mediumButton.setOnClickListener {
-            loadLayout(R.id.frBuscaminas, R.layout.buscaminas_layout, 16, 16, 40)
+            loadLayout(R.id.frBuscaminas, R.layout.buscaminas_layout, 12, 8, 20)
         }
         hardButton.setOnClickListener {
-            loadLayout(R.id.frBuscaminas, R.layout.buscaminas_layout, 24, 24, 99)
+            loadLayout(R.id.frBuscaminas, R.layout.buscaminas_layout, 15, 8, 35)
         }
     }
 
