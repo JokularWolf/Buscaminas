@@ -75,7 +75,52 @@ class MainActivity : ComponentActivity() {
         } else {
             val adjacentMines = matrix.getAdjacentMines(row, col)
             button.text = adjacentMines.toString()
+
+            // Si hay 0 minas adyacentes, revela en cascada
+            if (adjacentMines == 0) {
+                revealAdjacentCells(row, col)
+            }
         }
     }
-}
 
+    private fun revealAdjacentCells(row: Int, col: Int) {
+        val gridLayout = findViewById<GridLayout>(R.id.gridLayout)
+        val directions = listOf(-1 to -1, -1 to 0, -1 to 1,
+            0 to -1,          0 to 1,
+            1 to -1, 1 to 0, 1 to 1)
+
+        val queue = mutableListOf(row to col)
+
+        while (queue.isNotEmpty()) {
+            val (currentRow, currentCol) = queue.removeAt(0)
+            val button = gridLayout.getChildAt(currentRow * matrix.cols + currentCol) as Button
+
+            if (matrix.revealCell(currentRow, currentCol)) {
+                // Si se encuentra una mina, no hacemos nada
+                continue
+            }
+
+            val adjacentMines = matrix.getAdjacentMines(currentRow, currentCol)
+            button.text = adjacentMines.toString()
+
+            // Si el número de minas adyacentes es 0, se agrega las celdas adyacentes a la cola
+            if (adjacentMines == 0) {
+                for (direction in directions) {
+                    val newRow = currentRow + direction.first
+                    val newCol = currentCol + direction.second
+
+                    // Verifica que las nuevas coordenadas estén dentro del rango
+                    if (newRow in 0 until matrix.rows && newCol in 0 until matrix.cols) {
+                        val newButton = gridLayout.getChildAt(newRow * matrix.cols + newCol) as Button
+                        // Asegúrate de que no se haya revelado ya esta celda
+                        if (!matrix.board[newRow][newCol].isRevealed) {
+                            queue.add(newRow to newCol)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+}

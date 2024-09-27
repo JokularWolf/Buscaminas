@@ -7,7 +7,7 @@ import kotlin.random.Random
 class Matrix(val rows: Int, val cols: Int, val numMines: Int) {
 
     // Matriz para representar el estado del tablero
-    private val board: Array<Array<Cell>>
+    val board: Array<Array<Cell>>
 
     init {
         // Inicializa el tablero con celdas vacías
@@ -76,4 +76,3 @@ class Matrix(val rows: Int, val cols: Int, val numMines: Int) {
         return board[row][col].adjacentMines
     }
 }
-
