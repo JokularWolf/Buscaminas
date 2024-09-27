@@ -68,20 +68,37 @@ class MainActivity : ComponentActivity() {
     private fun handleButtonClick(row: Int, col: Int) {
         val gridLayout = findViewById<GridLayout>(R.id.gridLayout)
         val button = gridLayout.getChildAt(row * matrix.cols + col) as Button
+        val cell = matrix.board[row][col]
 
-        if (matrix.revealCell(row, col)) {
-            Toast.makeText(this, "¡Juego terminado! Has encontrado una mina.", Toast.LENGTH_SHORT).show()
-            button.text = "💣"
+        if (cell.isMarked) {
+            // Si la celda está marcada, la desmarcamos
+            cell.isMarked = false
+            button.text = "" // Limpia el texto del botón
         } else {
-            val adjacentMines = matrix.getAdjacentMines(row, col)
-            button.text = adjacentMines.toString()
+            // Si la celda no está marcada, intentamos revelarla
+            if (cell.isRevealed) return // Ya revelada, no hacer nada
 
-            // Si hay 0 minas adyacentes, revela en cascada
-            if (adjacentMines == 0) {
-                revealAdjacentCells(row, col)
+            if (matrix.revealCell(row, col)) {
+                Toast.makeText(this, "¡Juego terminado! Has encontrado una mina.", Toast.LENGTH_SHORT).show()
+                button.text = "💣"
+            } else {
+                val adjacentMines = matrix.getAdjacentMines(row, col)
+                button.text = adjacentMines.toString()
+
+                // Si hay 0 minas adyacentes, revela en cascada
+                if (adjacentMines == 0) {
+                    revealAdjacentCells(row, col)
+                }
             }
         }
+
+        // Si la celda no estaba marcada y no se reveló, se marca
+        if (!cell.isRevealed && !cell.isMarked) {
+            cell.isMarked = true
+            button.text = "🚩" // Cambia el texto del botón a un marcador
+        }
     }
+
 
     private fun revealAdjacentCells(row: Int, col: Int) {
         val gridLayout = findViewById<GridLayout>(R.id.gridLayout)

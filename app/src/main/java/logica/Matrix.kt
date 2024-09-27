@@ -20,6 +20,7 @@ class Matrix(val rows: Int, val cols: Int, val numMines: Int) {
         var isMine: Boolean = false
         var isRevealed: Boolean = false
         var adjacentMines: Int = 0
+        var isMarked: Boolean = false
     }
 
     // Coloca minas en posiciones aleatorias
