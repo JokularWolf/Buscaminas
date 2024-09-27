@@ -38,6 +38,9 @@ class MainActivity : ComponentActivity() {
         val layout = layoutInflater.inflate(layoutId, frameLayout, false)
         frameLayout.addView(layout) // Añade el nuevo layout
 
+        // Reiniciar el estado del juego
+        isGameOver = false // Reinicia el estado del juego
+
         setupGrid(rows, cols, numMines) // Configura la nueva cuadrícula
     }
 
