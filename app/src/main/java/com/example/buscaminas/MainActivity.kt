@@ -6,6 +6,7 @@ import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import android.widget.GridLayout
+import android.widget.PopupMenu
 import logica.Matrix
 
 class MainActivity : ComponentActivity() {
@@ -70,36 +71,47 @@ class MainActivity : ComponentActivity() {
         val button = gridLayout.getChildAt(row * matrix.cols + col) as Button
         val cell = matrix.board[row][col]
 
-        if (cell.isMarked) {
-            // Si la celda está marcada, la desmarcamos
-            cell.isMarked = false
-            button.text = "" // Limpia el texto del botón
-        } else {
-            // Si la celda no está marcada, intentamos revelarla
-            if (cell.isRevealed) return // Ya revelada, no hacer nada
+        // Mostrar el menú emergente
+        val popupMenu = PopupMenu(this, button)
+        popupMenu.menu.add(0, 1, 0, "Descubrir")
+        popupMenu.menu.add(0, 2, 1, "Marcar")
 
-            if (matrix.revealCell(row, col)) {
-                Toast.makeText(this, "¡Juego terminado! Has encontrado una mina.", Toast.LENGTH_SHORT).show()
-                button.text = "💣"
-            } else {
-                val adjacentMines = matrix.getAdjacentMines(row, col)
-                button.text = adjacentMines.toString()
+        // Manejar las selecciones del menú
+        popupMenu.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                1 -> { // Opción "Descubrir"
+                    if (!cell.isMarked) {
+                        if (matrix.revealCell(row, col)) {
+                            Toast.makeText(this, "¡Juego terminado! Has encontrado una mina.", Toast.LENGTH_SHORT).show()
+                            button.text = "💣" // Mostrar mina
+                        } else {
+                            val adjacentMines = matrix.getAdjacentMines(row, col)
+                            button.text = adjacentMines.toString()
 
-                // Si hay 0 minas adyacentes, revela en cascada
-                if (adjacentMines == 0) {
-                    revealAdjacentCells(row, col)
+                            // Si hay 0 minas adyacentes, revela en cascada
+                            if (adjacentMines == 0) {
+                                revealAdjacentCells(row, col)
+                            }
+                        }
+                    } else {
+                        Toast.makeText(this, "No puedes descubrir una celda marcada.", Toast.LENGTH_SHORT).show()
+                    }
+                    true
                 }
+                2 -> { // Opción "Marcar"
+                    if (!cell.isRevealed) {
+                        cell.isMarked = !cell.isMarked // Alternar marcado
+                        button.text = if (cell.isMarked) "🚩" else "" // Mostrar o limpiar el marcador
+                    }
+                    true
+                }
+                else -> false
             }
         }
 
-        // Si la celda no estaba marcada y no se reveló, se marca
-        if (!cell.isRevealed && !cell.isMarked) {
-            cell.isMarked = true
-            button.text = "🚩" // Cambia el texto del botón a un marcador
-        }
+        popupMenu.show()
     }
-
-
+    
     private fun revealAdjacentCells(row: Int, col: Int) {
         val gridLayout = findViewById<GridLayout>(R.id.gridLayout)
         val directions = listOf(-1 to -1, -1 to 0, -1 to 1,
