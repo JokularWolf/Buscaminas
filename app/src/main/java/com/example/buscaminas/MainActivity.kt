@@ -76,7 +76,6 @@ class MainActivity : ComponentActivity() {
         val button = gridLayout.getChildAt(row * matrix.cols + col) as Button
         val cell = matrix.board[row][col]
 
-        // Mostrar el menú emergente solo si el juego no ha terminado
         if (!isGameOver) {
             val popupMenu = PopupMenu(this, button)
             popupMenu.menu.add(0, 1, 0, "Descubrir")
@@ -87,8 +86,7 @@ class MainActivity : ComponentActivity() {
                     1 -> { // Opción "Descubrir"
                         if (!cell.isMarked) {
                             if (matrix.revealCell(row, col)) {
-                                // El jugador ha pulsado una mina
-                                showGameOver()
+                                showGameOver() // El jugador ha pulsado una mina
                             } else {
                                 val adjacentMines = matrix.getAdjacentMines(row, col)
                                 button.text = adjacentMines.toString()
@@ -96,6 +94,11 @@ class MainActivity : ComponentActivity() {
                                 // Si hay 0 minas adyacentes, revela en cascada
                                 if (adjacentMines == 0) {
                                     revealAdjacentCells(row, col)
+                                }
+
+                                // Verificar si el jugador ha ganado
+                                if (checkWinCondition()) {
+                                    showWinDialog()
                                 }
                             }
                         } else {
@@ -187,6 +190,45 @@ class MainActivity : ComponentActivity() {
                 button.isEnabled = false // Deshabilitar el botón
             }
         }
+    }
+
+    private fun showWinDialog() {
+        val dialog = Dialog(this)
+        dialog.setContentView(R.layout.dialog_you_win)
+
+        val tvYouWin = dialog.findViewById<TextView>(R.id.tvYouWin)
+        val btnPlayAgain = dialog.findViewById<Button>(R.id.btnPlayAgain)
+
+        // Configurar el botón para jugar de nuevo
+        btnPlayAgain.setOnClickListener {
+            // Reiniciar el nivel
+            loadLayout(R.id.frBuscaminas, R.layout.buscaminas_layout, matrix.rows, matrix.cols, matrix.numMines)
+            dialog.dismiss() // Cerrar el diálogo
+        }
+
+        // Mostrar el diálogo
+        dialog.show()
+    }
+
+    private fun checkWinCondition(): Boolean {
+        var totalCells = matrix.rows * matrix.cols
+        var revealedCells = 0
+        var markedMines = 0
+
+        for (row in 0 until matrix.rows) {
+            for (col in 0 until matrix.cols) {
+                val cell = matrix.board[row][col]
+                if (cell.isRevealed) {
+                    revealedCells++
+                }
+                if (cell.isMarked && cell.isMine) {
+                    markedMines++
+                }
+            }
+        }
+
+        // Verifica si todas las celdas sin mina están reveladas y las minas están marcadas
+        return (revealedCells == (totalCells - matrix.numMines)) && (markedMines == matrix.numMines)
     }
 
 }
