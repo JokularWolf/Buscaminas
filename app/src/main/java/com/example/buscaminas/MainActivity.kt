@@ -7,7 +7,9 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import android.widget.GridLayout
 import android.widget.PopupMenu
+import android.widget.TextView
 import logica.Matrix
+import android.app.Dialog
 
 class MainActivity : ComponentActivity() {
 
@@ -116,12 +118,11 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-
     private fun revealAdjacentCells(row: Int, col: Int) {
         val gridLayout = findViewById<GridLayout>(R.id.gridLayout)
         val directions = listOf(-1 to -1, -1 to 0, -1 to 1,
-            0 to -1,          0 to 1,
-            1 to -1, 1 to 0, 1 to 1)
+                                0 to -1,          0 to 1,
+                                1 to -1, 1 to 0, 1 to 1)
 
         val queue = mutableListOf(row to col)
 
@@ -160,7 +161,23 @@ class MainActivity : ComponentActivity() {
 
     private fun showGameOver() {
         isGameOver = true
-        Toast.makeText(this, "Game Over", Toast.LENGTH_SHORT).show()
+
+        // Crear el diálogo
+        val dialog = Dialog(this)
+        dialog.setContentView(R.layout.dialog_game_over)
+
+        val tvGameOver = dialog.findViewById<TextView>(R.id.tvGameOver)
+        val btnRestart = dialog.findViewById<Button>(R.id.btnRestart)
+
+        // Configurar el botón de reinicio
+        btnRestart.setOnClickListener {
+            // Reiniciar el nivel
+            loadLayout(R.id.frBuscaminas, R.layout.buscaminas_layout, matrix.rows, matrix.cols, matrix.numMines)
+            dialog.dismiss() // Cerrar el diálogo
+        }
+
+        // Mostrar el diálogo
+        dialog.show()
 
         // Desactivar todos los botones en el tablero
         val gridLayout = findViewById<GridLayout>(R.id.gridLayout)

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@android:color/white"
+    android:gravity="center">
+
+    <TextView
+        android:id="@+id/tvGameOver"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="¡Juego Terminado!"
+        android:textSize="24sp"
+        android:textColor="@android:color/holo_red_dark"
+        android:layout_marginBottom="16dp"/>
+
+    <Button
+        android:id="@+id/btnRestart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Reiniciar"
+        android:background="@android:color/holo_green_light"/>
+</LinearLayout>
