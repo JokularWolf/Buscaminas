@@ -110,6 +110,11 @@ class MainActivity : ComponentActivity() {
                         if (!cell.isRevealed) {
                             cell.isMarked = !cell.isMarked // Alternar marcado
                             button.text = if (cell.isMarked) "🚩" else "" // Mostrar o limpiar el marcador
+
+                            // Verificar si el jugador ha ganado después de marcar
+                            if (checkWinCondition()) {
+                                showWinDialog()
+                            }
                         }
                         true
                     }
